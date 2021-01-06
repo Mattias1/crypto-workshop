@@ -2,23 +2,30 @@
 
 Wat leuke cryptopals-challenges met wat code om je op weg te helpen.
 
+
 Deelname eisen / huiswerk:
 ---------------------------
 - Wees niet bang voor byte-arrays
 - Weet dat encryptie algoritmes (nouja, degene die we hier gaan gebruiken, AES) in blokken werken
 - Ken de begrippen "plaintext" en "ciphertext"
 - Weet het verschil tussen een encryptie-algoritme en een hash-algoritme
-- Kan C#7 compileren (aka, installeer visual studio 2017 of de laatste vs-code)
+- Kan C#8 en asp.net core 3.1 compileren (aka, installeer visual studio of vs-code oid)
+
+
+Thema:
+-------
+Er is een server die JsonInternetTokens uitgeeft. Een token met json data die op een zelfgemaakte
+manier beveiligd tegen namaak / uitlezen.
+
+Formaat van het token: `{ "email": <email>, "role": <role>, "secretMessage": <secretMessage> }`
+
 
 ECB decryption:
 ----------------
-Inleiding: er is een programma dat een geheim bericht verstuurt, waar je wat opmerkingen aan de voorkant aan toe kan
-voegen als je wilt
+Inleiding: Dit bestaat uit twee delen, 'beveilig' het token met ECB encryptie, en kraak vervolgens
+het geheime bericht uit het token (zonder de sleutel te gebruiken uiteraard).
 
-Opdracht: vind de inhoud van het geheime bericht zonder de sleutel te weten
-
-Formaat van het bericht: `<opmerkingen><het geheime bericht>`
-Detail: Het is ge-encrypt met AES in ECB mode, gepad met 0-bytes.
+Details, doe een POST naar /token/new
 
 Hints:
 - AES encrypt de tekst in blokken van 16 bytes; ECB mode betekend dat twee dezelfde blokken plaintext naar dezelfde
@@ -29,6 +36,7 @@ Hints:
 - Maak je niet druk om de encryptie-sleutel.
 
 Met dank aan: http://cryptopals.com/sets/2/challenges/12
+
 
 Forge webtoken hash:
 ---------------------

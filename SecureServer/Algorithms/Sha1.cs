@@ -1,11 +1,10 @@
-﻿using System;
+﻿using SecureServer.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CryptoWorkshop
-{
-    public static class Sha1
-    {
+namespace SecureServer.Algorithms {
+    public static class Sha1 {
         public const int ChunkSize = 64;
         public const int HashSize = 20;
 
@@ -20,48 +19,6 @@ namespace CryptoWorkshop
             }
         }
 
-        public static Dictionary<string, string> KnownHmacHashes {
-            get {
-                // { "key;message" , "expected SHA1-HMAC" }
-                return new Dictionary<string, string> {
-                    {";", "fbdb1d1b18aa6c08324b7d64b71fb76370690e1d"},
-                    {"key;The quick brown fox jumps over the lazy dog", "de7c9b85b8b78aa6bc8a7a36f70a90701c9db4d9"}
-                };
-            }
-        }
-
-        public static byte[] Mac(byte[] key, byte[] message) {
-            return Hash(ByteArrayHelpers.Concatenate(key, message));
-        }
-
-        public static string Hmac(string key, string message) {
-            byte[] hash = Hmac(ConversionHelpers.FromUTF8String(key), ConversionHelpers.FromUTF8String(message));
-            return ConversionHelpers.ToHexString(hash, false);
-        }
-        public static byte[] Hmac(byte[] key, byte[] message) {
-            byte[] opad = ByteArrayHelpers.Create(ChunkSize, 0x5c);
-            byte[] ipad = ByteArrayHelpers.Create(ChunkSize, 0x36);
-            byte[] derivedKey = DeriveHmacKey(key);
-
-            return Hash(ByteArrayHelpers.Concatenate(
-                ByteArrayHelpers.XOR(derivedKey, opad),
-                Hash(ByteArrayHelpers.Concatenate(
-                    ByteArrayHelpers.XOR(derivedKey, ipad),
-                    message
-                ))
-            ));
-        }
-
-        private static byte[] DeriveHmacKey(byte[] key) {
-            if (key.Length == ChunkSize) {
-                return key;
-            }
-            if (key.Length < ChunkSize) {
-                return ByteArrayHelpers.ForcePadWith(key, ChunkSize, 0);
-            }
-            return Hash(key);
-        }
-
         public static string Hash(string message) {
             return ConversionHelpers.ToHexString(Hash(ConversionHelpers.FromUTF8String(message)), false);
         }
@@ -73,19 +30,6 @@ namespace CryptoWorkshop
 
             return ConversionHelpers.ToBigEndianByteArray(hash);
         }
-
-        public static byte[] HashLengthExtension(byte[] extraMessage, int originalHashLengthGuess, uint[] initHash) {
-            if (initHash.Length != 5)
-                throw new ArgumentException("The hash initialization array should consist of 5 unsigned 32-bit integers.");
-
-            uint[] hash = (uint[])initHash.Clone();
-            byte[] beginState = MdPadding(extraMessage, originalHashLengthGuess + extraMessage.Length);
-
-            MainLoop(beginState, hash);
-
-            return ConversionHelpers.ToBigEndianByteArray(hash);
-        }
-
 
         public static byte[] MdPadding(byte[] message, int? overrideMessageLength = null) {
             int closestMultiple = MdPaddingLength(message);
@@ -113,17 +57,20 @@ namespace CryptoWorkshop
 
                 uint[] chunkHash = ProcessChunks((uint[])hash.Clone(), words);
 
-                for (int i = 0; i < hash.Length; i++)
+                for (int i = 0; i < hash.Length; i++) {
                     hash[i] += chunkHash[i];
+                }
             }
         }
 
         private static uint[] GetWords(byte[] chunk) {
             var words = new uint[80];
-            for (int i = 0; i < 16; i++)
+            for (int i = 0; i < 16; i++) {
                 words[i] = ConversionHelpers.ToUInt(ByteArrayHelpers.CopyPartOf(chunk, i * 4, 4).Reverse().ToArray());
-            for (int i = 16; i < 80; i++)
+            }
+            for (int i = 16; i < 80; i++) {
                 words[i] = MiscHelpers.LeftRotate(words[i - 3] ^ words[i - 8] ^ words[i - 14] ^ words[i - 16], 1);
+            }
             return words;
         }
 

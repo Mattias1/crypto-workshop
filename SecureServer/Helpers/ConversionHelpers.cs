@@ -4,7 +4,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 
-namespace CryptoWorkshop.Helpers {
+namespace SecureServer.Helpers {
     public static class ConversionHelpers {
         public static byte[] FromHexString(string hexString) {
             // Initialize: work with a lowercase string without "0x" in front and without spaces

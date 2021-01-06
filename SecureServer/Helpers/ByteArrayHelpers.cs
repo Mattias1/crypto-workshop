@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 
-namespace CryptoWorkshop.Helpers {
+namespace SecureServer.Helpers {
     public static class ByteArrayHelpers {
         public static byte[] Create(int length, byte value) {
             byte[] raw = new byte[length];
