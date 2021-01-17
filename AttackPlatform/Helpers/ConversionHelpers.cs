@@ -4,7 +4,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 
-namespace CryptoWorkshop.Helpers {
+namespace AttackPlatform.Helpers {
     public static class ConversionHelpers {
         public static byte[] FromHexString(string hexString) {
             // Initialize: work with a lowercase string without "0x" in front and without spaces
@@ -51,11 +51,6 @@ namespace CryptoWorkshop.Helpers {
         }
         public static string ToHexString(uint[] raw, bool add0x = false) {
             return ToHexString(ToBigEndianByteArray(raw), add0x);
-        }
-
-        private static string toHexString(byte raw) {
-            const string hex = "0123456789abcdef";
-            return $"{hex[raw >> 4]}{hex[raw & 0x0f]}";
         }
 
         public static string ToBitString(uint raw, bool add0b = true) {
@@ -176,7 +171,6 @@ namespace CryptoWorkshop.Helpers {
             return result;
         }
 
-
         public static string PrintAsciiTable(bool hex = true) {
             string[] toPrint = {
                 "abcdefghijklm",
@@ -207,6 +201,11 @@ namespace CryptoWorkshop.Helpers {
             string result = sb.ToString();
             Console.WriteLine(result);
             return result;
+        }
+
+        private static string toHexString(byte raw) {
+            const string hex = "0123456789abcdef";
+            return $"{hex[raw >> 4]}{hex[raw & 0x0f]}";
         }
     }
 }

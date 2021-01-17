@@ -3,7 +3,6 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace SecureServer.Algorithms {
     public static class BlockCipher {
@@ -14,7 +13,6 @@ namespace SecureServer.Algorithms {
             if (input.Length != 16 || key.Length != 16) {
                 throw new InvalidOperationException("The input and key should both be exactly 16 bytes.");
             }
-            // TODO: Check if this indeed returns 16 bytes (and doesn't add any padding of it's own).
             return EncryptAes(input, key, new byte[16], CipherMode.ECB, PaddingMode.None);
         }
 
@@ -25,7 +23,6 @@ namespace SecureServer.Algorithms {
             if (input.Length != 16 || key.Length != 16) {
                 throw new InvalidOperationException("The input and key should both be exactly 16 bytes.");
             }
-            // TODO: Check if this indeed returns 16 bytes (and doesn't add any padding of it's own).
             return DecryptAes(input, key, new byte[16], CipherMode.ECB, PaddingMode.None);
         }
 
@@ -99,7 +96,7 @@ namespace SecureServer.Algorithms {
         /// Remove PKCS#7 padding. This changes the array's length.
         /// </summary>
         public static byte[] UnPkcs7(byte[] raw) {
-            int paddingLength = GetPkcs7(raw);
+            int paddingLength = GetPkcs7Length(raw);
             return ByteArrayHelpers.CopyPartOf(raw, 0, raw.Length - paddingLength);
         }
 
@@ -107,16 +104,17 @@ namespace SecureServer.Algorithms {
         /// Remove PKCS#7 padding. This time, overwrite the padding with zeroes.
         /// </summary>
         public static byte[] ZeroPkcs7(byte[] raw) {
-            int paddingLength = GetPkcs7(raw);
+            int paddingLength = GetPkcs7Length(raw);
             byte[] result = new byte[raw.Length];
             Array.Copy(raw, 0, result, 0, raw.Length - paddingLength);
             return result;
         }
 
         /// <summary>
-        /// Check whether or not the raw array is a properly PKCS7-padded. Return -1 when not valid.
+        /// Check whether or not the raw array is a properly PKCS7-padded and return the padding length.
+        /// Return -1 when not valid.
         /// </summary>
-        public static int GetPkcs7(byte[] raw) {
+        public static int GetPkcs7Length(byte[] raw) {
             int paddingLength = raw.Last();
             for (int i = 0; i < paddingLength; i++) {
                 if (raw[raw.Length - i - 1] != paddingLength) {
@@ -127,7 +125,7 @@ namespace SecureServer.Algorithms {
         }
 
         public static bool CheckPkcs7(byte[] raw) {
-            return GetPkcs7(raw) > 0;
+            return GetPkcs7Length(raw) > 0;
         }
     }
 

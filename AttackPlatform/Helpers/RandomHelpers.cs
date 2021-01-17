@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace CryptoWorkshop.Helpers {
+namespace AttackPlatform.Helpers {
     public static class RandomHelpers {
-        private static Random random;
+        private static Random? random;
         public static Random Random => random ?? (random = new Random());
 
         public static byte[] RandomByteArray(int length) {

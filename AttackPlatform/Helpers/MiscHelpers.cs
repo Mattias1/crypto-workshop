@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CryptoWorkshop.Helpers {
+namespace AttackPlatform.Helpers {
     public static class MiscHelpers {
         public static bool Equals<T>(T[] a, T[] b)
                 where T : IEquatable<T> {

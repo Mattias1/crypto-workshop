@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26430.15
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CryptoWorkshop", "CryptoWorkshop\CryptoWorkshop.csproj", "{57778E4E-A36F-4CBB-98F3-E2ED763C4AA8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AttackPlatform", "AttackPlatform\AttackPlatform.csproj", "{57778E4E-A36F-4CBB-98F3-E2ED763C4AA8}"
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecureServer", "SecureServer\SecureServer.csproj", "{03D7488E-7EB8-4CF1-92FF-ABDA2471AA8E}"
 EndProject
 Global
