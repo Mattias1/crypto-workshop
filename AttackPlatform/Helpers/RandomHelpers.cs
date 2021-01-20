@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SecureServer.Helpers {
+namespace AttackPlatform.Helpers {
     public static class RandomHelpers {
         private static Random? random;
         public static Random Random => random ?? (random = new Random());

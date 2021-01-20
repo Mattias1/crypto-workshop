@@ -31,7 +31,7 @@ namespace SecureServer.Algorithms {
             return ConversionHelpers.ToBigEndianByteArray(hash);
         }
 
-        public static byte[] MdPadding(byte[] message, int? overrideMessageLength = null) {
+        public static byte[] MdPadding(byte[] message) {
             int closestMultiple = MdPaddingLength(message);
 
             byte[] result = new byte[Math.Max(ChunkSize, closestMultiple)];
@@ -39,7 +39,7 @@ namespace SecureServer.Algorithms {
 
             result[message.Length] = 0x80;
 
-            byte[] bitLength = ConversionHelpers.ToBigEndian((uint)(overrideMessageLength ?? message.Length) * 8);
+            byte[] bitLength = ConversionHelpers.ToBigEndian((uint)message.Length * 8);
             Array.Copy(bitLength, 0, result, result.Length - bitLength.Length, bitLength.Length);
 
             return result;
