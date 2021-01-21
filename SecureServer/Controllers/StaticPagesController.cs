@@ -6,7 +6,8 @@ namespace SecureServer.Controllers {
     public class StaticPagesController : Controller {
         [HttpGet]
         public IActionResult Home() {
-            return Content(HtmlContent("Crypto workshops", "For the challenges, go to TODO"), "text/html");
+            return Content(HtmlContent("Crypto workshops", "For the challenges, go to "
+                + "https://github.com/Mattias1/crypto-workshop/blob/master/docs/workshop.md"), "text/html");
         }
 
         [HttpGet("/error")]
