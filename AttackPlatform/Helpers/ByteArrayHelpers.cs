@@ -109,5 +109,14 @@ namespace AttackPlatform.Helpers {
             raw[index] = (byte)(raw[index] ^ xorWith);
             return raw;
         }
+
+        public static bool IsEqual(byte[] left, byte[] right) {
+            for (int i=0; i<left.Length; i++) {
+                if (left[i] != right[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }

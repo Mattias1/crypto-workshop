@@ -1,5 +1,7 @@
 ﻿using AttackPlatform.Helpers;
 using FluentAssertions;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -32,21 +34,59 @@ namespace AttackPlatform
         [Fact]
         public async Task Challenge1_DecryptEcb()
         {
-            string encryptedToken = await _api.PostJsonAsString("/token/new", new TokenEmail {
-                Email = "test@example.com"
+            _output.WriteLine("");
+            var characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ=; -_,.?\"'{}[]|<>/\\".ToCharArray();
+
+            string prefix = new string('B', 10);
+
+            List<char> result = new List<char>();
+            for (int hackPosition = 0; hackPosition < 66; hackPosition++) {
+                int blockPosition = hackPosition / 16;
+
+                // Build input for attempt
+                char[] input = (prefix + new string('A', 16 * blockPosition + 15)).ToCharArray();
+                for (int i=0; i < result.Count; i++) {
+                    input[input.Length - result.Count + i] = result[i];
+                }
+
+                // Build the block with the character from the original token, that we try to find
+                var blocksToAttack = (await GetBlocks(prefix + new string('A', 16 * blockPosition + 15 - result.Count)));
+                var blockToAttack = blocksToAttack[blockPosition + 1];
+
+                _output.WriteLine($"Attempt char {hackPosition}; input: {new string(input)} ({result.Count})");
+
+                // PrintBlocks("-- ", blocksToAttack, 1);
+                foreach (char c in characters) {
+                    var attempt = (await GetBlocks(input, c));
+                    var attemptBlock = attempt[blockPosition + 1];
+
+                    // PrintBlocks($"{c}: ", attempt, 1);
+
+                    if (ByteArrayHelpers.IsEqual(attemptBlock, blockToAttack)) {
+                        result.Add(c);
+                        _output.WriteLine($"The next byte is: {c}. Result so far: {new string(result.ToArray())}");
+                        break;
+                    }
+                }
+            }
+        }
+
+        private async Task<byte[][]> GetBlocks(char[] input, char c) => await GetBlocks(new string(input) + c);
+        private async Task<byte[][]> GetBlocks(string email) {
+            string hex = await _api.PostJsonAsString("/token/new", new TokenEmail {
+                Email = email
             });
+            return ByteArrayHelpers.SplitUp(ConversionHelpers.FromHexString(hex), 16);
+        }
 
-            _output.WriteLine($"Token: '{encryptedToken}'");
-
-            // Alternatively, you can also do this:
-            var result = await _api.PostJson("/token/new", new TokenEmail {
-                Email = "test@example.com"
-            });
-
-            // Obviously, this should be 200, but unless you implement it, it's a 400.
-            // And yeah, failing tests that you don't have to fix right now are annoying, so we'll cheat a bit :)
-            result.StatusCode.Should().Be(400);
-            string encryptedToken2 = await result.Content.ReadAsStringAsync();
+        private void PrintBlocks(string prefix, byte[][] blocks, params int[] indices) {
+            string output = "";
+            for (int i=0; i < blocks.Length; i++) {
+                if (indices.Contains(i)) {
+                    output += ConversionHelpers.ToHexString(blocks[i]) + ", ";
+                }
+            }
+            _output.WriteLine(prefix + output);
         }
 
         [Fact]

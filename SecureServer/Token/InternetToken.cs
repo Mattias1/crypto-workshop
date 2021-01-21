@@ -32,6 +32,7 @@ namespace SecureServer.Token {
             return ConversionHelpers.ToHexString(bytes, true);
         }
         public byte[] ToTokenBytes() {
+            _values["secretMessage"] = Hidden.HiddenSecretServerThings.SecretMessageForChallenge1;
             string plainTokenString = ToPlainTokenString();
             byte[] plainTokenBytes = ConversionHelpers.FromUTF8String(plainTokenString);
             byte[] securedTokenBytes = SecureToken(plainTokenBytes);
@@ -71,27 +72,12 @@ namespace SecureServer.Token {
 
         private byte[] SecureToken(byte[] unsecuredTokenBytes) {
             if (SecurityMechanism == TokenSecurityMechanism.AES_ECB) {
-                throw new NotImplementedException("TODO, implement this token security mechanism.");
-
-                // TODO: Make sure the byte array is a multiple of 16 - use PKCS#7 for that.
-                // You could use the method in BlockCipher.cs, or make it yourself ;)
-                byte[] unsecuredBytes = unsecuredTokenBytes;
-
+                byte[] unsecuredBytes = BlockCipher.Pkcs7(unsecuredTokenBytes);
                 byte[][] blocks = ByteArrayHelpers.SplitUp(unsecuredBytes, 16);
-
-                // TODO: Add encryption here - see BlockCipher.cs on how to encrypt a single block
-                // (if you modify it you can also encrypt multiple blocks, but that'd be cheating, so don't).
-                // You can set the message by commenting out the following line:
-                // SecretMessage = SecureServer.Hidden.HiddenSecretServerThings.SecretMessageForChallenge1;
-                // Please encrypt using this key (and don't peek!):
-                // byte[] challenge1Key = SecureServer.Hidden.HiddenSecretServerThings.SecretKeyForChallenge1;
-                // And yeah, this is a little bit ugly, but it might stop you from accidentally read the message or the
-                // key before you crack it. It's supposed to stay a secret from you, until you finish the cracking part
-                // of Challenge 1 that is of course ;)
-                byte[][] encryptedTokenBytes = blocks;
-
-                byte[] securedBytes = ByteArrayHelpers.Concatenate(encryptedTokenBytes);
-                return securedBytes;
+                byte[][] encryptedTokenBytes = blocks
+                    .Select(block => BlockCipher.EncryptAesBlock(block, SecureServer.Hidden.HiddenSecretServerThings.SecretKeyForChallenge1))
+                    .ToArray();
+                return ByteArrayHelpers.Concatenate(encryptedTokenBytes);
             }
             else {
                 throw new NotImplementedException("TODO, implement the other token security mechanisms.");
@@ -100,7 +86,11 @@ namespace SecureServer.Token {
 
         private static byte[] DeSecureToken(byte[] secureTokenBytes, TokenSecurityMechanism securityMechanism) {
             if (securityMechanism == TokenSecurityMechanism.AES_ECB) {
-                throw new NotImplementedException("TODO, implement this token security mechanism.");
+                byte[][] blocks = ByteArrayHelpers.SplitUp(secureTokenBytes, 16);
+                byte[][] decryptedTokenBytes = blocks
+                    .Select(block => BlockCipher.DecryptAesBlock(block, SecureServer.Hidden.HiddenSecretServerThings.SecretKeyForChallenge1))
+                    .ToArray();
+                return BlockCipher.UnPkcs7(ByteArrayHelpers.Concatenate(decryptedTokenBytes));
             }
             else {
                 throw new NotImplementedException("TODO, implement the other token security mechanisms.");
