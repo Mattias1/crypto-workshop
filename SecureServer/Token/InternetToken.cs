@@ -28,7 +28,13 @@ namespace SecureServer.Token {
         }
 
         public string ToTokenHexString() {
+            // TODO: You can set the message by commenting out the following line:
+            // _values["secretMessage"] = SecureServer.Hidden.HiddenSecretServerThings.SecretMessageForChallenge1;
+            // And yeah, this is a little bit ugly, but it might stop you from accidentally read the message
+            // before you crack it. It's supposed to stay a secret from you, until you finish the cracking
+            // part of Challenge 1 that is of course ;)
             byte[] bytes = ToTokenBytes();
+            // _values["secretMessage"] = ""; // And erase it again, so that we don't accidentally read it - assuming we set this above.
             return ConversionHelpers.ToHexString(bytes, true);
         }
         public byte[] ToTokenBytes() {
@@ -63,7 +69,6 @@ namespace SecureServer.Token {
                 var keyvalueArray = keyvaluePair.Split('=');
                 if (keyvalueArray.Length == 2) {
                     values[keyvalueArray[0]] = keyvalueArray[1];
-                    // values.Add(keyvalueArray[0], keyvalueArray[1]);
                 }
             }
             return new InternetToken(values);
@@ -81,13 +86,11 @@ namespace SecureServer.Token {
 
                 // TODO: Add encryption here - see BlockCipher.cs on how to encrypt a single block
                 // (if you modify it you can also encrypt multiple blocks, but that'd be cheating, so don't).
-                // You can set the message by commenting out the following line:
-                // SecretMessage = SecureServer.Hidden.HiddenSecretServerThings.SecretMessageForChallenge1;
                 // Please encrypt using this key (and don't peek!):
                 // byte[] challenge1Key = SecureServer.Hidden.HiddenSecretServerThings.SecretKeyForChallenge1;
-                // And yeah, this is a little bit ugly, but it might stop you from accidentally read the message or the
-                // key before you crack it. It's supposed to stay a secret from you, until you finish the cracking part
-                // of Challenge 1 that is of course ;)
+                // And yeah, this is a little bit ugly, but it might stop you from accidentally read the key
+                // before you crack it. It's supposed to stay a secret from you, until you finish the cracking
+                // part of Challenge 1 that is of course ;)
                 byte[][] encryptedTokenBytes = blocks;
 
                 byte[] securedBytes = ByteArrayHelpers.Concatenate(encryptedTokenBytes);
